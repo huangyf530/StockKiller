@@ -104,6 +104,5 @@ class Reader:
         return data
 
 if __name__=="__main__":
-    register_matplotlib_converters()
     reader = Reader(DATASET)
     reader.read_tick()
