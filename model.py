@@ -22,8 +22,8 @@ class PRNet(nn.Module):
                                 out_features=1,
                                 bias=True)
     
-    def forward(self, input):
-        output = self.lstm1(input)
+    def forward(self, in_data):
+        output = self.lstm1(in_data)
         output = self.lstm2(output)
         output = self.logits(output)
         return output
