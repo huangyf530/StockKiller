@@ -5,11 +5,12 @@ import os
 import dateutil
 from utils import *
 import torch.utils.data as data
+import math
 
 DATASET = "/Users/huangyf/Dataset/PRData"
 
 class Reader(data.Dataset):
-    def __init__(self, data_path, dt=5, a=900, b=3600, k=0.2):
+    def __init__(self, data_path, dt=5, a=30, b=300, k=0.2):
         self.tick_path = data_path + os.sep + "Tick"
         self.order_path = data_path + os.sep + "Order"
         self.orderqueue_path = data_path + os.sep + "OrderQueue"
@@ -106,6 +107,39 @@ class Reader(data.Dataset):
             data.append(current_data)
             time = time + dateutil.relativedelta.relativedelta(seconds=self.dt)
         return data
+    
+    def calUpAndDown(self, price, theta):
+        '''
+        计算每个时间点股票价格属于上涨还是降低或者是不变
+        @args:
+            price: 价格列表，记录某一天每个时刻的价格
+            theta: 阈值
+        @return: 
+            result: type:list, -1=down, 0=no change, 1=up
+            time: 对应的时间戳
+            len: list length
+        '''
+        a_index = math.ceil(self.a / self.dt)
+        b_index = math.floor(self.b / self.dt)
+        result = []
+        time = []
+        for i in range(len(price) - b_index):
+            max_gap = 0
+            max_index = 0
+            for j in range(a_index, b_index + 1):
+                if(abs(price[i + j] - price[i]) > max_gap):
+                    max_gap = abs(price[i + j] - price[i])
+                    max_index = i + j
+            d = float(price[max_index] - price[i]) / price[i]
+            if d < -theta:
+                result.append(-1)
+            elif d > theta:
+                result.append(1)
+            else:
+                result.append(0)
+            time.append(self.time[i])
+        return result, time, len(result)
+
 
 if __name__=="__main__":
     reader = Reader(DATASET)
