@@ -29,9 +29,10 @@ class Reader(data.Dataset):
             df['nPrice'] = df['nPrice'] / 10000    # change its unit
             
             time, prices = self.getPrices(df)
-            all_prices.append(prices)
+            all_prices.append(prices[1:])
             # plotByTime(time, prices)
-        return time, all_prices
+        self.time = time[1:]
+        return time[1:], all_prices
 
     def calPrice(self, turover1, turover2, volume1, volume2, priceB, priceA):
         price = self.k * (float(turover1 - turover2)) / (volume1 - volume2) + (1 - self.k) * float(priceA + priceB) / 20000
@@ -41,8 +42,8 @@ class Reader(data.Dataset):
         prices = []
         prices.append(df['nPreClose'][0] / 10000)
         x = []
-        x.append(pd.Timestamp("1900-01-01 9:29:50"))
-        time = pd.Timestamp("1900-01-01 9:29:50")
+        x.append(pd.Timestamp("1900-01-01 9:29:55"))
+        time = pd.Timestamp("1900-01-01 9:29:55")
         endTime = pd.Timestamp("1900-01-01 15:00:00")
         i = 1
         while (time - endTime).total_seconds() < 0:
