@@ -30,7 +30,6 @@ class Reader(data.Dataset):
             df = pd.read_csv(self.tick_path + os.sep + filename)
             df['nTime'] = pd.to_datetime(df.nTime,format='%H%M%S%f')
             df['nPrice'] = df['nPrice'] / 10000    # change its unit
-            print(df.size)
             if df.size == 0:
                 abandon_file.append(filename)
                 print(filename, "is abandoned because df.size == 0")
