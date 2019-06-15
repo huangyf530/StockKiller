@@ -13,7 +13,7 @@ isGPU = False
 args = dict()
 args['predict_len'] = 60 # 5min
 args['epoch'] = 100
-args['learning_rate'] = 0.0001
+args['learning_rate'] = 0.1
 args['batch_size'] = 50
 args['lr_decay_factor'] = 0.99
 args['input_dim'] = 1
@@ -58,12 +58,12 @@ def train(data, label, isTrain=True):
     global model
     global optimizer
 
-    st, ed = 0, args['batch_size']
+    st, ed = 0, min(args['batch_size'], len(data))
     total_loss, total_acc = 0., 0.
 
     while st < len(data):
-        batch_data = torch.LongTensor(np.array(data[st: ed], np.float32))
-        batch_label = torch.LongTensor(np.array(label[st: ed], np.float32))
+        batch_data = torch.FloatTensor(np.array(data[st: ed], np.float32))
+        batch_label = torch.FloatTensor(np.array(label[st: ed], np.float32))
 
         batch_data = batch_data.to(device)
         batch_label = batch_label.to(device)
@@ -80,7 +80,7 @@ def train(data, label, isTrain=True):
             optimizer.step()
 
         total_loss += float(loss)
-        total_acc += (batch_label == output.detach()).sum()
+        total_acc += (batch_label == output.detach()).sum().float()
 
         st, ed = ed, min(ed + args['batch_size'], len(data))
 
@@ -95,7 +95,8 @@ def predict(data):
     theta = args['theta']
     pl = args['predict_len']
     ml = len(data[0])
-    st, ed = 0, args['batch_size']
+    assert(ml > pl)
+    st, ed = 0, min(args['batch_size'], len(data))
     labels = list()
     for i in range(len(data)):
         l, _ = reader.calUpAndDown(data[i], theta)
@@ -105,8 +106,8 @@ def predict(data):
     assert (len(predict_data) == len(data))
     while st < len(predict_data):
         for i in range(ml - pl):
-            batch_data = [predict_data[t][i, i + pl] for t in range(st, ed)]
-            batch_data = torch.LongTensor(np.array(batch_data, np.float32))
+            batch_data = [predict_data[t][i: i + pl] for t in range(st, ed)]
+            batch_data = torch.FloatTensor(np.array(batch_data, np.float32))
             output = model(batch_data)
             output = output.detach().cpu().numpy().tolist()
             for j in range(len(output)):
@@ -117,7 +118,7 @@ def predict(data):
 
     predict_labels = list()
     for i in range(len(predict_data)):
-        l, _ = reader.calUpAndDown(predict_labels[i], theta)
+        l, _ = reader.calUpAndDown(predict_data[i], theta)
         predict_labels.append(l)
 
     assert(len(labels) == len(predict_labels))
@@ -125,7 +126,7 @@ def predict(data):
     total_num = 0
     acc_num = 0
     for i in range(len(labels)):
-        for j in range(labels[i]):
+        for j in range(len(labels[i])):
             total_num += 1
             if labels[i][j] == predict_labels[i][j]:
                 acc_num += 1
@@ -136,8 +137,7 @@ def predict(data):
 # init data
 path = './PRData'
 reader = Reader(path, args)
-all_price, stock_time = reader.read_tick()
-np_all = np.array(all_price, np.float32)
+stock_time, all_price, _  = reader.read_tick()
 tv_price, test_price, _, _ = train_test_split(all_price, [i for i in range(len(all_price))], test_size=0.1, random_state=42)
 train_price, valid_price, _, _ = train_test_split(tv_price, [i for i in range(len(tv_price))], test_size=0.1, random_state=42)
 
@@ -158,7 +158,8 @@ model = PRNet(args)
 model.to(device)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=args['learning_rate'])
-loss_func = nn.CrossEntropyLoss()
+#loss_func = nn.CrossEntropyLoss()
+loss_func = nn.MSELoss()
 scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=args['lr_decay_factor'], patience=3)
 
 for ep in range(args['epoch']):
