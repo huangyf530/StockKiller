@@ -26,6 +26,7 @@ class PRNet(nn.Module):
     def forward(self, x):
         # x: [batch, len]
         # x: [len, batch, dim]
+        x = x.permute(1, 0)
         x = x.view(self.max_length, -1, self.input_dim)
         # output: [len, batch, num_direction * hidden_dim]
         output, _ = self.lstm(x)
