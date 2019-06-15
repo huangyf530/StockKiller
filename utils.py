@@ -15,3 +15,9 @@ def plotByTime(time, data):
 def Interpolation(value_shift, x_shift, my_x_shift, left_value):
     y = float(value_shift) / x_shift * my_x_shift + left_value
     return y
+
+def writeToCsv(path, time, data):
+    with open(path, 'w') as f:
+        to_write = pd.DataFrame({"nTime" : time, "Data" : data}, columns=['nTime', 'Data'])
+        to_write['nTime'].dt.strftime('%H%M%S%f')
+        print(to_write.to_csv(index=False), file=f)
