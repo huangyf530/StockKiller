@@ -15,6 +15,7 @@ class Reader(data.Dataset):
         self.order_path = data_path + os.sep + "Order"
         self.orderqueue_path = data_path + os.sep + "OrderQueue"
         self.handled_data = data_path + os.sep + "HandleTick"
+        self.datapath = data_path
         self.dt = float(args['dt'])
         self.a = args['a']
         self.b = args['b']
@@ -22,45 +23,60 @@ class Reader(data.Dataset):
     
     def read_tick(self):
         all_prices = []
-        abandon_file = []
-        if os.path.exists(self.handled_data):
-            print("Read handled data from " + self.handled_data)
-            self.datafiles = os.listdir(self.handled_data)
-            self.datafiles = sorted(self.datafiles)
-            time = self.getTime()
-            for filename in self.datafiles:
+        print("Load Price Data")
+        if os.path.exists(os.path.join(self.datapath, "abandon_file")):
+            with open(os.path.join(self.datapath, "abandon_file"), 'r') as f:
+                line = f.readline()
+                line = line.strip()
+                abandon_file = line.split(" ")
+        else:
+            abandon_file = []
+        abandon = open(os.path.join(self.datapath, "abandon_file"), 'a')
+        if not os.path.exists(self.handled_data):
+            os.mkdir(self.handled_data)
+        self.tickfiles = os.listdir(self.tick_path)
+        self.tickfiles = sorted(self.tickfiles)
+        self.datafiles = os.listdir(self.handled_data)
+        self.datafiles = sorted(self.datafiles)
+        # k = 0
+        time = self.getTime()
+        for filename in self.tickfiles:
+            # k += 1
+            # if k == 10:
+            #     break
+            print(filename)
+            if filename in self.datafiles:
+                print("read {} from handled file".format(filename))
                 df = pd.read_csv(self.handled_data + os.sep + filename)
                 df['nTime'] = pd.to_datetime(df.nTime,format='%Y-%m-%d %H:%M:%S')
                 all_prices.append(df['Data'].tolist())
-            return time[1:], all_prices, []
-        self.tickfiles = os.listdir(self.tick_path)
-        self.tickfiles = sorted(self.tickfiles)
-        # k = 0
-        os.mkdir(self.handled_data)
-        for filename in self.tickfiles:
-            print(filename)
+                continue
+            if filename in abandon_file:
+                print(filename, "is in abandon list")
+                continue
             df = pd.read_csv(self.tick_path + os.sep + filename)
             df['nTime'] = pd.to_datetime(df.nTime,format='%H%M%S%f')
             df['nPrice'] = df['nPrice'] / 10000    # change its unit
             if df.size == 0:
                 abandon_file.append(filename)
+                abandon.write(filename + " ")
                 print(filename, "is abandoned because df.size == 0")
                 continue
             if df['nTime'][0].hour != 9:
                 abandon_file.append(filename)
+                abandon.write(filename + " ")
                 print(filename, "is abandoned because df['nTime'][0].hour != 9")
                 continue
             if df['nTime'].iloc[-1].hour < 14 and df['nTime'].iloc[-1].minute < 59:
                 abandon_file.append(filename)
+                abandon.write(filename + " ")
                 print(filename, "is abandoned because df['nTime'].iloc[-1].hour < 14")
                 continue
             time, prices = self.getPrices(df)
             all_prices.append(prices[1:])
             writeToCsv(self.handled_data + os.sep + filename, time[1:], prices[1:])
             # plotByTime(time[1:], prices[1:])
-            # k += 1
-            # if k == 10:
-            #     break
+        abandon.close()
         self.time = time[1:]
         return time[1:], all_prices, abandon_file
 
