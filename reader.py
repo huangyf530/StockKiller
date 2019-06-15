@@ -7,24 +7,36 @@ from utils import *
 import torch.utils.data as data
 import math
 
-DATASET = "./PRData"
+DATASET = "/Users/huangyf/Dataset/PRData"
 
 class Reader(data.Dataset):
     def __init__(self, data_path, args):
         self.tick_path = data_path + os.sep + "Tick"
         self.order_path = data_path + os.sep + "Order"
         self.orderqueue_path = data_path + os.sep + "OrderQueue"
+        self.handled_data = data_path + os.sep + "HandleTick"
         self.dt = float(args['dt'])
         self.a = args['a']
         self.b = args['b']
         self.k = args['k']
     
     def read_tick(self):
-        self.tickfiles = os.listdir(self.tick_path)
-        self.tickfiles = sorted(self.tickfiles)
         all_prices = []
         abandon_file = []
+        if os.path.exists(self.handled_data):
+            print("Read handled data from " + self.handled_data)
+            self.datafiles = os.listdir(self.handled_data)
+            self.datafiles = sorted(self.datafiles)
+            time = self.getTime()
+            for filename in self.datafiles:
+                df = pd.read_csv(self.handled_data + os.sep + filename)
+                df['nTime'] = pd.to_datetime(df.nTime,format='%Y-%m-%d %H:%M:%S')
+                all_prices.append(df['Data'].tolist())
+            return time[1:], all_prices, []
+        self.tickfiles = os.listdir(self.tick_path)
+        self.tickfiles = sorted(self.tickfiles)
         # k = 0
+        os.mkdir(self.handled_data)
         for filename in self.tickfiles:
             print(filename)
             df = pd.read_csv(self.tick_path + os.sep + filename)
@@ -44,6 +56,7 @@ class Reader(data.Dataset):
                 continue
             time, prices = self.getPrices(df)
             all_prices.append(prices[1:])
+            writeToCsv(self.handled_data + os.sep + filename, time[1:], prices[1:])
             # plotByTime(time[1:], prices[1:])
             # k += 1
             # if k == 10:
@@ -54,10 +67,8 @@ class Reader(data.Dataset):
     def calPrice(self, turover1, turover2, volume1, volume2, priceB, priceA):
         price = self.k * (float(turover1 - turover2)) / (volume1 - volume2) + (1 - self.k) * float(priceA + priceB) / 20000
         return price
-    
-    def getPrices(self, df):
-        prices = []
-        prices.append(df['nPreClose'][0] / 10000)
+
+    def getTime(self):
         x = []
         x.append(pd.Timestamp("1900-01-01 9:29:55"))
         time = pd.Timestamp("1900-01-01 9:29:55")
@@ -73,6 +84,12 @@ class Reader(data.Dataset):
         while (time - endTime2).total_seconds() < 0:
             x.append(time + dateutil.relativedelta.relativedelta(seconds=self.dt))
             time = time + dateutil.relativedelta.relativedelta(seconds=self.dt)
+        return x
+    
+    def getPrices(self, df):
+        prices = []
+        prices.append(df['nPreClose'][0] / 10000)
+        x = self.getTime()
         turover = self.getIntDataByTime(x, 'iAccTurover', df)
         volume = self.getIntDataByTime(x, 'iAccVolume', df)
         bid_price = self.getListDataByTime(x, 'nBidPrice', df)
@@ -176,9 +193,15 @@ class Reader(data.Dataset):
         return result, time
 
 if __name__=="__main__":
-    reader = Reader(DATASET)
+    args = dict()
+    args['a'] = 30
+    args['b'] = 300
+    args['dt'] = 5
+    args['k'] = 0.3
+    args['theta'] = 0.004
+    reader = Reader(DATASET, args)
     time, prices, abandon_file = reader.read_tick()
     prices = np.array(prices)
     print(abandon_file)
     print(prices.shape)
-    print(prices.size())
+    print(prices.size)
