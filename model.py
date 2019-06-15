@@ -4,8 +4,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class PRNet(nn.Module):
-    def __init__(self, hidden_size, input_size, num_layers):
+    def __init__(self, args):
         super(PRNet, self).__init__()
+        
+        
         self.lstm1 = nn.LSTM(input_size=input_size, 
                             hidden_size=hidden_size,
                             num_layers=num_layers,

@@ -7,7 +7,7 @@ from utils import *
 import torch.utils.data as data
 import math
 
-DATASET = "/Users/huangyf/Dataset/PRData"
+DATASET = "./PRData"
 
 class Reader(data.Dataset):
     def __init__(self, data_path, dt=5, a=30, b=300, k=0.2):
@@ -139,7 +139,6 @@ class Reader(data.Dataset):
                 result.append(0)
             time.append(self.time[i])
         return result, time, len(result)
-
 
 if __name__=="__main__":
     reader = Reader(DATASET)
