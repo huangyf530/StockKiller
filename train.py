@@ -170,8 +170,8 @@ if args['load_model']:
     
 model.to(device)
 
-if not os.path.exists(args[save_path]):
-    os.makedirs(args[save_path])
+if not os.path.exists(args['save_path']):
+    os.makedirs(args['save_path'])
         
 optimizer = torch.optim.Adam(model.parameters(), lr=args['learning_rate'])
 #loss_func = nn.CrossEntropyLoss()
