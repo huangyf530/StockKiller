@@ -10,14 +10,14 @@ import math
 DATASET = "./PRData"
 
 class Reader(data.Dataset):
-    def __init__(self, data_path, dt=5, a=30, b=300, k=0.2):
+    def __init__(self, data_path, args):
         self.tick_path = data_path + os.sep + "Tick"
         self.order_path = data_path + os.sep + "Order"
         self.orderqueue_path = data_path + os.sep + "OrderQueue"
-        self.dt = float(dt)
-        self.a = a
-        self.b = b
-        self.k = k
+        self.dt = float(args['dt'])
+        self.a = args['a']
+        self.b = args['b']
+        self.k = args['k']
     
     def read_tick(self):
         self.tickfiles = os.listdir(self.tick_path)
@@ -153,7 +153,6 @@ class Reader(data.Dataset):
         @return: 
             result: type:list, -1=down, 0=no change, 1=up
             time: 对应的时间戳
-            len: list length
         '''
         a_index = math.ceil(self.a / self.dt)
         b_index = math.floor(self.b / self.dt)
@@ -174,7 +173,7 @@ class Reader(data.Dataset):
             else:
                 result.append(0)
             time.append(self.time[i])
-        return result, time, len(result)
+        return result, time
 
 if __name__=="__main__":
     reader = Reader(DATASET)

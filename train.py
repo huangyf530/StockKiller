@@ -19,12 +19,18 @@ args['lr_decay_factor'] = 0.99
 args['input_dim'] = 1
 args['hidden_size'] = 200
 args['num_layers'] = 2
+args['a'] = 30
+args['b'] = 300
+args['dt'] = 5
+args['k'] = 0.3
+args['theta'] = 0.004
 
 # func
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
         return param_group['lr']
 
+    
 def shuffle_data(x, y):
     shuffled_range = list(range(len(x)))
     _x = list()
@@ -35,6 +41,7 @@ def shuffle_data(x, y):
         _y.append(y[shuffled_range[i]])
     return _x, _y
 
+
 def turn2data(dayprices):
     data = list()
     labels = list()
@@ -44,6 +51,7 @@ def turn2data(dayprices):
             data.append(dp[i: i+pl])
             labels.append(dp[i+pl])
     return data, labels
+
 
 def train(data, label, isTrain=True):
     global device
@@ -78,9 +86,56 @@ def train(data, label, isTrain=True):
 
     return total_loss, total_acc / len(data)
 
+
+def predict(data):
+    global device
+    global model
+    global reader
+    
+    theta = args['theta']
+    pl = args['predict_len']
+    ml = len(data[0])
+    st, ed = 0, args['batch_size']
+    labels = list()
+    for i in range(len(data)):
+        l, _ = reader.calUpAndDown(data[i], theta)
+        labels.append(l)
+        
+    predict_data = [data[i][: pl] for i in range(len(data))]
+    assert (len(predict_data) == len(data))
+    while st < len(predict_data):
+        for i in range(ml - pl):
+            batch_data = [predict_data[t][i, i + pl] for t in range(st, ed)]
+            batch_data = torch.LongTensor(np.array(batch_data, np.float32))
+            output = model(batch_data)
+            output = output.detach().cpu().numpy().tolist()
+            for j in range(len(output)):
+                predict_data[st + j].append(output[j])
+
+        st, ed = ed, min(ed + args['batch_size'], len(predict_data))
+
+
+    predict_labels = list()
+    for i in range(len(predict_data)):
+        l, _ = reader.calUpAndDown(predict_labels[i], theta)
+        predict_labels.append(l)
+
+    assert(len(labels) == len(predict_labels))
+
+    total_num = 0
+    acc_num = 0
+    for i in range(len(labels)):
+        for j in range(labels[i]):
+            total_num += 1
+            if labels[i][j] == predict_labels[i][j]:
+                acc_num += 1
+
+    return float(acc_num) / float(total_num)
+
+
 # init data
 path = './PRData'
-reader = Reader(path)
+reader = Reader(path, args)
 all_price, stock_time = reader.read_tick()
 np_all = np.array(all_price, np.float32)
 tv_price, test_price, _, _ = train_test_split(all_price, [i for i in range(len(all_price))], test_size=0.1, random_state=42)
@@ -113,17 +168,19 @@ for ep in range(args['epoch']):
 
     # train
     loss, acc = train(data, label)
+    pacc = predict(train_price)
+    print('Epoch %d: learning rate %.8f epoch time %.4fs loss [%.4f] price acc [%.4f] label acc [%.4f]'
+          % (ep, get_lr(optimizer), time.time()-st, loss, acc, pacc))
 
-    print('Epoch %d: learning rate %.8f epoch_time %.4fs loss [%.4f] accuracy [%.4f]'
-          % (ep, get_lr(optimizer), time.time()-st, loss, acc))
 
     # valid
     loss, acc = train(valid_data, valid_labels, False)
-
-    print('         validation_set, loss [%.4f] accuracy [%.4f]'
-          % (loss, acc))
+    pacc = predict(valid_price)
+    print('         validation_set, loss [%.4f] price acc [%.4f] label acc [%.4f]'
+          % (loss, acc, pacc))
 
     # test
     loss, acc = train(test_data, test_labels, False)
-    print('         test_set, loss [%.4f] accuracy [%.4f]'
-          % (loss, acc))
+    pacc = predict(test_price)
+    print('         test_set, loss [%.4f] price acc [%.4f] label acc [%.4f]'
+          % (loss, acc, pacc))
