@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 register_matplotlib_converters()
 
 def plotByTime(time, data):
+    # for i in range(len(data)):
+    #     print(i, time[i], data[i])
     to_plot = pd.DataFrame({"Time" : time, "Data" : data}, columns=['Time', 'Data'])
-    to_plot.index = to_plot['Time']
+    # to_plot.index = to_plot['Time']
     plt.plot(to_plot['Data'])
     plt.show()
 
