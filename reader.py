@@ -179,12 +179,8 @@ class Reader(data.Dataset):
 
 if __name__=="__main__":
     reader = Reader(DATASET)
-<<<<<<< HEAD
-    reader.read_tick()
-=======
     time, prices, abandon_file = reader.read_tick()
     prices = np.array(prices)
     print(abandon_file)
     print(prices.shape)
     print(prices.size())
->>>>>>> ac7081284dd2c7d033cb32d0e0e2e2e0b9b8472f
