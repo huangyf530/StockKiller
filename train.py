@@ -6,6 +6,7 @@ import numpy as np
 from reader import Reader
 from model import PRNet
 import time
+import os
 
 isGPU = False
 
@@ -24,6 +25,10 @@ args['b'] = 300
 args['dt'] = 5
 args['k'] = 0.3
 args['theta'] = 0.004
+args['save_path'] = './models/'
+args['load_path'] = 'model0.pt'
+args['load_model'] = False
+args['gpu'] = 'cuda:0'
 
 # func
 def get_lr(optimizer):
@@ -149,14 +154,25 @@ isGPU = torch.cuda.is_available()
 # create model
 if isGPU:
     print('GPU environment')
-    device = torch.device('cuda:0')
+    device = torch.device(args['gpu'])
 else:
     print('CPU environment')
     device = torch.device('cpu')
 
 model = PRNet(args)
+if args['load_model']:
+    if isGPU:
+        model.load_state_dict(torch.load(args['save_path'] + args['load_path'],
+                                         map_location=args['gpu']))
+    else:
+        model.load_state_dict(torch.load(args['save_path'] + args['load_path'],
+                                         map_location=device))
+    
 model.to(device)
 
+if not os.path.exists(args[save_path]):
+    os.makedirs(args[save_path])
+        
 optimizer = torch.optim.Adam(model.parameters(), lr=args['learning_rate'])
 #loss_func = nn.CrossEntropyLoss()
 loss_func = nn.MSELoss()
@@ -164,17 +180,20 @@ scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=args['lr_decay_facto
 
 for ep in range(args['epoch']):
     st = time.time()
-
+    
     data, label = shuffle_data(train_data, train_labels)
 
     # train
+    model.train()
     loss, acc = train(data, label)
     pacc = predict(train_price)
     print('Epoch %d: learning rate %.8f epoch time %.4fs loss [%.4f] price acc [%.4f] label acc [%.4f]'
           % (ep, get_lr(optimizer), time.time()-st, loss, acc, pacc))
 
+    torch.save(model.state_dict(), args['save_path'] + 'model' + str(ep) + '.pt')
 
     # valid
+    model.eval()
     loss, acc = train(valid_data, valid_labels, False)
     pacc = predict(valid_price)
     print('         validation_set, loss [%.4f] price acc [%.4f] label acc [%.4f]'
