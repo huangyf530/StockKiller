@@ -15,7 +15,7 @@ args = dict()
 args['predict_len'] = 60 # 5min
 args['epoch'] = 100
 args['learning_rate'] = 0.1
-args['batch_size'] = 100
+args['batch_size'] = 500
 args['lr_decay_factor'] = 0.99
 args['input_dim'] = 1
 args['hidden_size'] = 50
@@ -92,7 +92,7 @@ def train(data, label, isTrain=True):
         total_acc += (batch_label == output.detach()).sum().float()
         
         if step % args['step_size'] == 0:
-            print('Step [%d] loss [%.4f]' % (step, total_loss))
+            print('Step [%d] loss [%.4f]' % (step, float(loss)))
         
         st, ed = ed, min(ed + args['batch_size'], len(data))
 
