@@ -142,13 +142,18 @@ def predict(data):
 
     total_num = 0
     acc_num = 0
+    total_acc_rate, total_call_rate = 0., 0.
+    
     for i in range(len(labels)):
         for j in range(len(labels[i])):
             total_num += 1
+            acc_rate, call_rate = calPandR(predict_labels[i], labels[i])
+            total_acc_rate += acc_rate
+            total_call_rate += call_rate
             if labels[i][j] == predict_labels[i][j]:
                 acc_num += 1
-
-    return float(acc_num) / float(total_num)
+            
+    return float(acc_num) / float(total_num), float(total_acc_rate) / float(total_num), float(total_call_rate) / float(total_num)
 
 
 # init data
@@ -208,14 +213,14 @@ for ep in range(args['epoch']):
     model.eval()
     loss = train(valid_data, valid_labels, False)
     scheduler.step()
-    pacc = predict(valid_price)
-    print('         validation_set, loss [%.4f] label acc [%.4f]'
-          % (loss, pacc))
+    pacc, acc_rate, call_rate = predict(valid_price)
+    print('         validation_set, loss [%.4f] label acc [%.4f] accurate [%.4f] recall [%.4f]'
+          % (loss, pacc, acc_rate, call_rate))
     
     # test
     loss = train(test_data, test_labels, False)
-    pacc = predict(test_price)
-    print('         test_set, loss [%.4f] label acc [%.4f]'
-          % (loss, pacc))
+    pacc, acc_rate, call_rate = predict(test_price)
+    print('         test_set, loss [%.4f] label acc [%.4f] accurate [%.4f] recall [%.4f]'
+          % (loss, pacc, acc_rate, call_rate))
     if not args['isTrain']:
         break
