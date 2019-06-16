@@ -52,8 +52,9 @@ def calPandR(predict, label):
 def plotPredictAndPrice(data, predict, pl, path):
     x1 = range(len(data))
     x2 = range(pl, len(data))
-    plt.plot(x1, data)
-    plt.plot(x2, predict[pl:])
+    plt.plot(x1, data, label="price")
+    plt.plot(x2, predict[pl:], label="predict")
+    plt.legend()
     plt.savefig(path)
     plt.close()
 
@@ -76,7 +77,8 @@ def getThreeRate(data, reader, theta):
 
 def plotLoss(train_loss, predict_loss, path):
     x = range(len(train_loss))
-    plt.plot(x, train_loss)
-    plt.plot(x, predict_loss)
+    plt.plot(x, train_loss, label="train loss")
+    plt.plot(x, predict_loss, label="predict loss")
+    plt.legend()
     plt.savefig(path)
     plt.close()
