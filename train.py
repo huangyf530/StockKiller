@@ -190,7 +190,7 @@ def newpredict(data):
                 output = model(batch_data)
                 output = output.detach().cpu().numpy().tolist()
 
-                if f == i:
+                if f == pl:
                     for j in range(len(output)):
                         predict_data[st + j].append(output[j])
                         

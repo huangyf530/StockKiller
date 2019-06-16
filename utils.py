@@ -51,7 +51,7 @@ def calPandR(predict, label):
 
 def plotPredictAndPrice(data, predict, pl, path):
     x1 = range(len(data))
-    x2 = range(pl, len(data))
+    x2 = range(pl, len(predict))
     plt.plot(x1, data, label="price")
     plt.plot(x2, predict[pl:], label="predict")
     plt.legend()
