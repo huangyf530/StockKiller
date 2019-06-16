@@ -12,20 +12,20 @@ isGPU = False
 
 # parameters
 args = dict()
-args['predict_len'] = 60 # 5min
+args['predict_len'] = 120 # 10min
 args['epoch'] = 100
-args['learning_rate'] = 0.1
-args['batch_size'] = 500
-args['lr_decay_factor'] = 0.99
+args['learning_rate'] = 0.0001
+args['batch_size'] = 2000
+args['lr_decay_factor'] = 0.9
 args['input_dim'] = 1
-args['hidden_size'] = 50
+args['hidden_size'] = 100
 args['num_layers'] = 2
 args['a'] = 30
 args['b'] = 300
 args['dt'] = 5
 args['k'] = 0.3
 args['theta'] = 0.004
-args['save_path'] = './models/'
+args['save_path'] = './models_'+'pl'+str(args['predict_len'])+'_lr'+str(args['learning_rate'])+'_hd'+str(args['hidden_size'])
 args['load_path'] = 'model0.pt'
 args['step_size'] = 1000
 args['load_model'] = False
@@ -184,7 +184,7 @@ if not os.path.exists(args['save_path']):
         
 optimizer = torch.optim.Adam(model.parameters(), lr=args['learning_rate'])
 loss_func = nn.MSELoss()
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=args['lr_decay_factor'])
 
 for ep in range(args['epoch']):
     st = time.time()
