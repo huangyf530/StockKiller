@@ -13,20 +13,28 @@ isGPU = False
 
 # parameters
 args = dict()
+<<<<<<< HEAD
 args['predict_len'] = 120 # 5min
 args['epoch'] = 100
 args['learning_rate'] = 0.0001
 args['batch_size'] = 2000
 args['lr_decay_factor'] = 0.99
+=======
+args['predict_len'] = 120 # 10min
+args['epoch'] = 100
+args['learning_rate'] = 0.0001
+args['batch_size'] = 2000
+args['lr_decay_factor'] = 0.9
+>>>>>>> 8ef447dc958de9c40f83f7ba16626f0aa1133fc1
 args['input_dim'] = 1
-args['hidden_size'] = 50
+args['hidden_size'] = 100
 args['num_layers'] = 2
 args['a'] = 30
 args['b'] = 300
 args['dt'] = 5
 args['k'] = 0.3
 args['theta'] = 0.004
-args['save_path'] = './models/'
+args['save_path'] = './models_'+'pl'+str(args['predict_len'])+'_lr'+str(args['learning_rate'])+'_hd'+str(args['hidden_size'])
 args['load_path'] = 'model0.pt'
 args['step_size'] = 1000
 args['load_model'] = False
@@ -186,9 +194,8 @@ if not os.path.exists(args['save_path']):
     os.makedirs(args['save_path'])
         
 optimizer = torch.optim.Adam(model.parameters(), lr=args['learning_rate'])
-#loss_func = nn.CrossEntropyLoss()
 loss_func = nn.MSELoss()
-scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=args['lr_decay_factor'], patience=3)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=args['lr_decay_factor'])
 
 for ep in range(args['epoch']):
     st = time.time()
@@ -208,10 +215,11 @@ for ep in range(args['epoch']):
     # valid
     model.eval()
     loss = train(valid_data, valid_labels, False)
+    scheduler.step()
     pacc = predict(valid_price)
     print('         validation_set, loss [%.4f] label acc [%.4f]'
           % (loss, pacc))
-
+    
     # test
     loss = train(test_data, test_labels, False)
     pacc = predict(test_price)
