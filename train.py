@@ -113,6 +113,7 @@ def predict(data):
         for i in range(ml - pl):
             batch_data = [predict_data[t][i: i + pl] for t in range(st, ed)]
             batch_data = torch.FloatTensor(np.array(batch_data, np.float32))
+            batch_data = batch_data.to(device)
             output = model(batch_data)
             output = output.detach().cpu().numpy().tolist()
             for j in range(len(output)):
@@ -140,7 +141,7 @@ def predict(data):
 
 
 # init data
-path = './PRData'
+path = '/Users/huangyf/Dataset/PRData'
 reader = Reader(path, args)
 stock_time, all_price, _  = reader.read_tick()
 tv_price, test_price, _, _ = train_test_split(all_price, [i for i in range(len(all_price))], test_size=0.1, random_state=42)
