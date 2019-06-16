@@ -177,20 +177,64 @@ def newpredict(data):
         labels.append(l)
 
     predict_data = [list() for _ in range(len(data))]
-
+    predict_labels = [list() for _ in range(len(data))]
+    
     while st < len(data):
         for i in range(pl, ml - b_index):
-            batch_data = [data[t][i - pl: i] for t in range(st, ed)]
-            batch_data = torch.FloatTensor(np.array(batch_data, np.float32))
-            batch_data = batch_data.to(device)
+            temp_data = [data[se][i - pl: i] for se in range(st, ed)]
+            for f in range(i, i + b_index + 1):
+                batch_data = [temp_data[t][f - pl: f] for t in range(st, ed)]
+                batch_data = torch.FloatTensor(np.array(batch_data, np.float32))
+                batch_data = batch_data.to(device)
+                
+                output = model(batch_data)
+                output =  output.detach().cpu().numpy().tolist()
 
-            output = model(batch_data)
-            output =  output.detach().cpu().numpy().tolist()
+                if f == i:
+                    for j in range(len(output)):
+                        predict_data[st + j].append(output[j])
+                    
+                for j in range(len(output)):
+                    temp_data[j].append(output[j])
 
-            for j in range(len(output)):
-                predict_data[st + j].append(output[j])
+            tt = [temp_data[se][pl:] for se in range(st, ed)]
+            classify_res = reader.getClassify(tt, theta)
+            for j in range(len(classify_res)):
+                predict_labels[st + j].append(classify_res[j])
+
+        st, ed = ed, min(ed + args['batch_size'], len(data))
+
+
+    for i in range(len(data)):
+        predict_data[i] = data[i][: pl] + predict_data[i]
+
+    '''
+    if args['imagepath'] is not None and not args['isTrain']:
+        if not os.path.exists(args['imagepath']):
+            os.mkdir(args['imagepath'])
+        for i in range(len(data)):
+            plotPredictAndPrice(data[i],  predict_data[i], pl, os.path.join(args['imagepath'], "figure" +  str(i) + ".png"))
+    '''
+
+    cmplabels = [list() for _ in range(len(labels))]
+    elen = len(predict_labels[0])
+    for i in range(len(labels)):
+        cmplabels[i] = labels[pl: pl + elen]
+
+    assert(len(cmplabels) == len(predict_labels))
+    total_num = 0
+    acc_num = 0
+    
+    for i in range(len(predict_labels)):
+        assert(len(cmplabels[i]) == len(predict_labels[i]))
+        for j in range(len(predict_labels[i])):
+            total_num += 1
+            if cmplabels[i][j] == predict_labels[i][j]:
+                acc_num += 1
+
+    acc_rate, call_rate = calPandR(predict_labels, cmplabels)
+    return float(acc_num) / float(total_num), acc_rate, call_rate
             
-        
 # init data
 path = './PRdata'
 reader = Reader(path, args)
@@ -258,13 +302,13 @@ for ep in range(args['epoch']):
     loss = train(valid_data, valid_labels, False)
     valid_loss_list.append(loss)
     scheduler.step()
-    pacc, acc_rate, call_rate = predict(valid_price)
+    pacc, acc_rate, call_rate = newpredict(valid_price)
     print('         validation_set, loss [%.4f] label acc [%.4f] accurate [%.4f] recall [%.4f]'
           % (loss, pacc, acc_rate, call_rate))
     
     # test
     loss = train(test_data, test_labels, False)
-    pacc, acc_rate, call_rate = predict(test_price)
+    pacc, acc_rate, call_rate = newpredict(test_price)
     print('         test_set, loss [%.4f] label acc [%.4f] accurate [%.4f] recall [%.4f]'
           % (loss, pacc, acc_rate, call_rate))
     if not args['isTrain']:

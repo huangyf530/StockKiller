@@ -222,7 +222,7 @@ class Reader(data.Dataset):
             time.append(self.time[i])
         return result, time
     
-    def  getClassify(self, price, theta):
+    def getClassify(self, price, theta):
         '''
         计算某个时间点股票价格属于上涨还是降低或者是不变
         @args:
