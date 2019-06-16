@@ -204,7 +204,7 @@ for ep in range(args['epoch']):
         print('Epoch %d: learning rate %.8f epoch time %.4fs mean loss [%.4f]'
             % (ep, get_lr(optimizer), time.time()-st, loss))
 
-        torch.save(model.state_dict(), args['save_path'] + 'model' + str(ep) + '.pt')
+        torch.save(model.state_dict(), args['save_path'] + '/model' + str(ep) + '.pt')
 
     # valid
     model.eval()
