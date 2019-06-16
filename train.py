@@ -141,7 +141,7 @@ def predict(data):
 
 
 # init data
-path = '/Users/huangyf/Dataset/PRData'
+path = './PRData'
 reader = Reader(path, args)
 stock_time, all_price, _  = reader.read_tick()
 tv_price, test_price, _, _ = train_test_split(all_price, [i for i in range(len(all_price))], test_size=0.1, random_state=42)
