@@ -28,7 +28,7 @@ args['k'] = 0.3
 args['theta'] = 0.004
 args['save_path'] = './models_'+'pl'+str(args['predict_len'])+'_lr'+str(args['learning_rate'])+'_hd'+str(args['hidden_size'])
 args['load_path'] = 'model0.pt'
-args['step_size'] = 1000
+args['step_size'] = 500
 args['load_model'] = False
 args['gpu'] = 'cuda:3'
 args['isTrain'] = True
@@ -199,9 +199,10 @@ if not os.path.exists(args['save_path']):
         
 optimizer = torch.optim.Adam(model.parameters(), lr=args['learning_rate'])
 loss_func = nn.MSELoss()
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=args['lr_decay_factor'])
 train_loss_list = list()
 valid_loss_list = list()
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=args['lr_decay_factor'])
+
 for ep in range(args['epoch']):
     st = time.time()
     
