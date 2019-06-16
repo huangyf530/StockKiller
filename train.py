@@ -32,7 +32,7 @@ args['step_size'] = 1000
 args['load_model'] = True
 args['gpu'] = 'cuda:3'
 args['isTrain'] = False
-args['imagepath'] = "./Image"
+args['imagepath'] = "./Image_" + 'pl'+str(args['predict_len'])+'_lr'+str(args['learning_rate'])+'_hd'+str(args['hidden_size'])
 
 
 # func
@@ -136,7 +136,7 @@ def predict(data):
         if not os.path.exists(args['imagepath']):
             os.mkdir(args['imagepath'])
         for i in range(len(data)):
-            plotPredictAndPrice(data[i],  predict_data[i], pl, os.path.join(args['imagepath'], "figure" +  str(i)))
+            plotPredictAndPrice(data[i],  predict_data[i], pl, os.path.join(args['imagepath'], "figure" +  str(i) + ".png"))
     predict_labels = list()
     for i in range(len(predict_data)):
         l, _ = reader.calUpAndDown(predict_data[i], theta)
@@ -163,7 +163,13 @@ reader = Reader(path, args)
 stock_time, all_price, _  = reader.read_tick()
 tv_price, test_price, _, _ = train_test_split(all_price, [i for i in range(len(all_price))], test_size=0.1, random_state=42)
 train_price, valid_price, _, _ = train_test_split(tv_price, [i for i in range(len(tv_price))], test_size=0.1, random_state=42)
-
+# cal three rate
+# down_train, nochange_train, up_train = getThreeRate(train_price, reader, args['theta'])
+# down_valid, nochange_valid, up_valid = getThreeRate(valid_price, reader, args['theta'])
+# down_test, nochange_test, up_test = getThreeRate(test_price, reader, args['theta'])
+# print("In train set: down: [%.4f], no change: [%.4f], up rate: [%.4f]" % (down_train, nochange_train, up_train))
+# print("In valid set: down: [%.4f], no change: [%.4f], up rate: [%.4f]" % (down_valid, nochange_valid, up_valid))
+# print("In test  set: down: [%.4f], no change: [%.4f], up rate: [%.4f]" % (down_test, nochange_test, up_test))
 train_data, train_labels = turn2data(train_price)
 valid_data, valid_labels = turn2data(valid_price)
 test_data, test_labels = turn2data(test_price)
@@ -193,7 +199,9 @@ if not os.path.exists(args['save_path']):
         
 optimizer = torch.optim.Adam(model.parameters(), lr=args['learning_rate'])
 loss_func = nn.MSELoss()
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=args['lr_decay_factor'])
+train_loss_list = list()
+valid_loss_list = list()
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=args['lr_decay_factor'])
 
 for ep in range(args['epoch']):
     st = time.time()
@@ -204,6 +212,7 @@ for ep in range(args['epoch']):
     if args['isTrain']:
         model.train()
         loss = train(data, label)
+        train_loss_list.append(loss)
         #pacc = predict(train_price)
         print('Epoch %d: learning rate %.8f epoch time %.4fs mean loss [%.4f]'
             % (ep, get_lr(optimizer), time.time()-st, loss))
@@ -213,6 +222,7 @@ for ep in range(args['epoch']):
     # valid
     model.eval()
     loss = train(valid_data, valid_labels, False)
+    valid_loss_list.append(loss)
     scheduler.step()
     pacc, acc_rate, call_rate = predict(valid_price)
     print('         validation_set, loss [%.4f] label acc [%.4f] accurate [%.4f] recall [%.4f]'
@@ -225,3 +235,7 @@ for ep in range(args['epoch']):
           % (loss, pacc, acc_rate, call_rate))
     if not args['isTrain']:
         break
+    elif args['imagepath'] is not None:
+        if not os.path.exists(args['imagepath']):
+            os.mkdir(args['imagepath'])
+        plotLoss(train_loss_list, valid_loss_list, os.path.join(args['imagepath'], "loss.png"))
