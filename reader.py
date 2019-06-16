@@ -23,7 +23,6 @@ class Reader(data.Dataset):
     
     def read_tick(self):
         all_prices = []
-        print("Load Price Data")
         if os.path.exists(os.path.join(self.datapath, "abandon_file")):
             with open(os.path.join(self.datapath, "abandon_file"), 'r') as f:
                 line = f.readline()
@@ -34,12 +33,27 @@ class Reader(data.Dataset):
         abandon = open(os.path.join(self.datapath, "abandon_file"), 'a')
         if not os.path.exists(self.handled_data):
             os.mkdir(self.handled_data)
-        self.tickfiles = os.listdir(self.tick_path)
-        self.tickfiles = sorted(self.tickfiles)
         self.datafiles = os.listdir(self.handled_data)
         self.datafiles = sorted(self.datafiles)
-        # k = 0
         time = self.getTime()
+        if not os.path.exists(self.tick_path):
+            # just handled files 
+            print("Load Price Data from handled files")
+            print(abandon_file, "is abandoned")
+            for filename in self.datafiles:
+                df = pd.read_csv(self.handled_data + os.sep + filename)
+                df['nTime'] = pd.to_datetime(df.nTime,format='%Y-%m-%d %H:%M:%S')
+                all_prices.append(df['Data'].tolist())
+                continue
+            if filename in abandon_file:
+                continue
+            abandon.close()
+            self.time = time[1:]
+            return time[1:], all_prices, abandon_file
+        print("Get data from Tick and HandleTick")
+        self.tickfiles = os.listdir(self.tick_path)
+        self.tickfiles = sorted(self.tickfiles)
+        # k = 0
         for filename in self.tickfiles:
             # k += 1
             # if k == 10:
