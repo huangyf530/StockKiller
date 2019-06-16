@@ -228,8 +228,11 @@ if __name__=="__main__":
     args['k'] = 0.3
     args['theta'] = 0.004
     reader = Reader(DATASET, args)
-    time, prices, abandon_file = reader.read_tick()
-    prices = np.array(prices)
-    print(abandon_file)
-    print(prices.shape)
-    print(prices.size)
+    reader.read_tick()
+    tickfiles = os.listdir(reader.tick_path)
+    tickfiles = sorted(tickfiles)
+    filename = tickfiles[0]
+    df = pd.read_csv(reader.tick_path + os.sep + filename)
+    df['nTime'] = pd.to_datetime(df.nTime,format='%H%M%S%f')
+    df['nPrice'] = df['nPrice'] / 10000    # change its unit
+    plotByTime(df['nTime'].tolist(), df['nPrice'].tolist())
