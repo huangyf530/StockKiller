@@ -7,15 +7,16 @@ from reader import Reader
 from model import PRNet
 import time
 import os
+from utils import *
 
 isGPU = False
 
 # parameters
 args = dict()
-args['predict_len'] = 60 # 5min
+args['predict_len'] = 120 # 5min
 args['epoch'] = 100
-args['learning_rate'] = 0.1
-args['batch_size'] = 500
+args['learning_rate'] = 0.0001
+args['batch_size'] = 2000
 args['lr_decay_factor'] = 0.99
 args['input_dim'] = 1
 args['hidden_size'] = 50
@@ -30,6 +31,8 @@ args['load_path'] = 'model0.pt'
 args['step_size'] = 1000
 args['load_model'] = False
 args['gpu'] = 'cuda:3'
+args['isTrain'] = True
+args['isPlot'] = True
 
 
 # func
@@ -193,13 +196,14 @@ for ep in range(args['epoch']):
     data, label = shuffle_data(train_data, train_labels)
 
     # train
-    model.train()
-    loss = train(data, label)
-    #pacc = predict(train_price)
-    print('Epoch %d: learning rate %.8f epoch time %.4fs mean loss [%.4f]'
-          % (ep, get_lr(optimizer), time.time()-st, loss))
+    if args['isTrain']:
+        model.train()
+        loss = train(data, label)
+        #pacc = predict(train_price)
+        print('Epoch %d: learning rate %.8f epoch time %.4fs mean loss [%.4f]'
+            % (ep, get_lr(optimizer), time.time()-st, loss))
 
-    torch.save(model.state_dict(), args['save_path'] + 'model' + str(ep) + '.pt')
+        torch.save(model.state_dict(), args['save_path'] + 'model' + str(ep) + '.pt')
 
     # valid
     model.eval()
@@ -213,3 +217,5 @@ for ep in range(args['epoch']):
     pacc = predict(test_price)
     print('         test_set, loss [%.4f] label acc [%.4f]'
           % (loss, pacc))
+    if not args['isTrain']:
+        break
