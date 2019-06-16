@@ -188,12 +188,12 @@ def newpredict(data):
                 batch_data = batch_data.to(device)
                 
                 output = model(batch_data)
-                output =  output.detach().cpu().numpy().tolist()
+                output = output.detach().cpu().numpy().tolist()
 
                 if f == i:
                     for j in range(len(output)):
                         predict_data[st + j].append(output[j])
-                    
+                        
                 for j in range(len(output)):
                     temp_data[j].append(output[j])
 
