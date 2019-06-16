@@ -15,11 +15,11 @@ isGPU = False
 args = dict()
 args['predict_len'] = 120 # 10min
 args['epoch'] = 100
-args['learning_rate'] = 0.0005
+args['learning_rate'] = 0.0001
 args['batch_size'] = 2000
 args['lr_decay_factor'] = 0.9
 args['input_dim'] = 1
-args['hidden_size'] = 50
+args['hidden_size'] = 100
 args['num_layers'] = 2
 args['a'] = 30
 args['b'] = 300
@@ -158,7 +158,7 @@ def predict(data):
 
 
 # init data
-path = '/home/huangyufei/DATASET/PRdata'
+path = './PRdata'
 reader = Reader(path, args)
 stock_time, all_price, _  = reader.read_tick()
 tv_price, test_price, _, _ = train_test_split(all_price, [i for i in range(len(all_price))], test_size=0.1, random_state=42)
