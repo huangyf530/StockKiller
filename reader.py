@@ -44,9 +44,9 @@ class Reader(data.Dataset):
             # k += 1
             # if k == 10:
             #     break
-            print(filename)
+            # print(filename)
             if filename in self.datafiles:
-                print("read {} from handled file".format(filename))
+                # print("read {} from handled file".format(filename))
                 df = pd.read_csv(self.handled_data + os.sep + filename)
                 df['nTime'] = pd.to_datetime(df.nTime,format='%Y-%m-%d %H:%M:%S')
                 all_prices.append(df['Data'].tolist())
