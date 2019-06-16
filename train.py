@@ -7,6 +7,7 @@ from reader import Reader
 from model import PRNet
 import time
 import os
+import math
 from utils import *
 
 isGPU = False
@@ -157,6 +158,39 @@ def predict(data):
     return float(acc_num) / float(total_num), acc_rate, call_rate
 
 
+def newpredict(data):
+    global device
+    global model
+    global reader
+
+    theta = args['theta']
+    pl = args['predict_len']
+    ml = len(data[0])
+    a_index = math.ceil(args['a'] / args['dt'])
+    b_index = math.floor(args['b'] / args['dt'])
+
+    st, ed = 0, min(args['batch_size'], len(data))
+
+    labels = list()
+    for i in range(len(data)):
+        l, _ = reader.calUpAndDown(data[i], theta)
+        labels.append(l)
+
+    predict_data = [list() for _ in range(len(data))]
+
+    while st < len(data):
+        for i in range(pl, ml - b_index):
+            batch_data = [data[t][i - pl: i] for t in range(st, ed)]
+            batch_data = torch.FloatTensor(np.array(batch_data, np.float32))
+            batch_data = batch_data.to(device)
+
+            output = model(batch_data)
+            output =  output.detach().cpu().numpy().tolist()
+
+            for j in range(len(output)):
+                predict_data[st + j].append(output[j])
+            
+        
 # init data
 path = './PRdata'
 reader = Reader(path, args)
