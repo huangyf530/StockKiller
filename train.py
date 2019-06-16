@@ -15,11 +15,11 @@ isGPU = False
 args = dict()
 args['predict_len'] = 120 # 10min
 args['epoch'] = 100
-args['learning_rate'] = 0.0001
+args['learning_rate'] = 0.0005
 args['batch_size'] = 2000
 args['lr_decay_factor'] = 0.9
 args['input_dim'] = 1
-args['hidden_size'] = 100
+args['hidden_size'] = 50
 args['num_layers'] = 2
 args['a'] = 30
 args['b'] = 300
@@ -27,11 +27,11 @@ args['dt'] = 5
 args['k'] = 0.3
 args['theta'] = 0.004
 args['save_path'] = './models_'+'pl'+str(args['predict_len'])+'_lr'+str(args['learning_rate'])+'_hd'+str(args['hidden_size'])
-args['load_path'] = 'model0.pt'
+args['load_path'] = 'model6.pt'
 args['step_size'] = 1000
-args['load_model'] = False
+args['load_model'] = True
 args['gpu'] = 'cuda:3'
-args['isTrain'] = True
+args['isTrain'] = False
 args['imagepath'] = "./Image"
 
 
@@ -158,7 +158,7 @@ def predict(data):
 
 
 # init data
-path = './PRData'
+path = '/home/huangyufei/DATASET/PRdata'
 reader = Reader(path, args)
 stock_time, all_price, _  = reader.read_tick()
 tv_price, test_price, _, _ = train_test_split(all_price, [i for i in range(len(all_price))], test_size=0.1, random_state=42)
@@ -180,10 +180,10 @@ else:
 model = PRNet(args)
 if args['load_model']:
      if isGPU:
-        model.load_state_dict(torch.load(args['save_path'] + args['load_path'],
+        model.load_state_dict(torch.load(args['save_path'] + os.sep + args['load_path'],
                                          map_location=args['gpu']))
      else:
-        model.load_state_dict(torch.load(args['save_path'] + args['load_path'],
+        model.load_state_dict(torch.load(args['save_path'] + os.sep + args['load_path'],
                                          map_location=device))
     
 model.to(device)
