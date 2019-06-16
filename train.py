@@ -113,6 +113,9 @@ def predict(data):
         for i in range(ml - pl):
             batch_data = [predict_data[t][i: i + pl] for t in range(st, ed)]
             batch_data = torch.FloatTensor(np.array(batch_data, np.float32))
+
+            batch_data = batch_data.to(device)
+            
             output = model(batch_data)
             output = output.detach().cpu().numpy().tolist()
             for j in range(len(output)):
