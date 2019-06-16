@@ -43,10 +43,22 @@ def calPandR(predict, label):
                 predict_down += 1
                 if label[i][j] == -1:
                     correct_down_num += 1
-    up_accu = float(correct_up_num) / float(predict_up)
-    down_accu = float(correct_down_num) / float(predict_down)
-    up_call = float(correct_up_num) / float(up_total_num)
-    down_call = float(correct_down_num) / float(down_total_num)
+    if predict_up != 0:
+        up_accu = float(correct_up_num) / float(predict_up)
+    else:
+        up_accu = 0
+    if predict_down != 0:
+        down_accu = float(correct_down_num) / float(predict_down)
+    else:
+        down_accu  = 0
+    if up_total_num != 0:
+        up_call = float(correct_up_num) / float(up_total_num)
+    else:
+        up_call = 0
+    if down_total_num != 0:
+        down_call = float(correct_down_num) / float(down_total_num)
+    else:
+        down_call  = 0
     return (up_accu + down_accu) / 2, (up_call + down_call) / 2
 
 def plotPredictAndPrice(data, predict, pl, path):
