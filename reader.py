@@ -221,6 +221,34 @@ class Reader(data.Dataset):
                 result.append(0)
             time.append(self.time[i])
         return result, time
+    
+    def  getClassify(self, price, theta):
+        '''
+        计算某个时间点股票价格属于上涨还是降低或者是不变
+        @args:
+            price: (size = N, *)价格列表，记录某一天每个时刻的价格
+            theta: 阈值
+        @return: 
+            result: type:list(size = N), -1=down, 0=no change, 1=up
+        '''
+        a_index = math.ceil(self.a / self.dt)
+        b_index = math.floor(self.b / self.dt)
+        result = []
+        for i in range(len(price)):
+            max_gap = 0
+            max_index = 0
+            for j in range(a_index, b_index + 1):
+                if(abs(price[i][j] - price[i][0]) > max_gap):
+                    max_gap = abs(price[i][j] - price[i][0])
+                    max_index = j
+            d = float(price[i][max_index] - price[i][0]) / price[i][0]
+            if d < -theta:
+                result.append(-1)
+            elif d > theta:
+                result.append(1)
+            else:
+                result.append(0)
+        return result
 
 if __name__=="__main__":
     # args = dict()
