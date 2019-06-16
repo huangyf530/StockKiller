@@ -133,6 +133,8 @@ def predict(data):
         st, ed = ed, min(ed + args['batch_size'], len(predict_data))
 
     if args['imagepath'] is not None and not args['isTrain']:
+        if not os.path.exists(args['imagepath']):
+            os.mkdir(args['imagepath'])
         for i in range(len(data)):
             plotPredictAndPrice(data[i],  predict_data[i], pl, os.path.join(args['imagepath'], "figure" +  str(i)))
     predict_labels = list()
