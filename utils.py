@@ -53,6 +53,28 @@ def plotPredictAndPrice(data, predict, pl, path):
     x1 = range(len(data))
     x2 = range(pl, len(data))
     plt.plot(x1, data)
-    plt.plot(s2, predict[pl:])
+    plt.plot(x2, predict[pl:])
     plt.savefig(path)
-             
+
+def getThreeRate(data, reader, theta):
+    '''
+    统计数据中三种类别的占比
+    data: 二维列表，第一维表示文件，第二维表示该文件中不同时刻的价格数据
+    @Return:
+        result[0]: 下降的个数
+        result[1]: 不变的个数
+        result[2]: 上涨的个数
+    '''
+    result = [0, 0, 0]
+    for i in range(len(data)):
+        label, _ = reader.calUpAndDown(data[i], theta)
+        for j in range(len(label)):
+            result[label[j] + 1] += 1
+    sum = result[0] + result[1] + result[2]
+    return result[0] / sum, result[1] / sum, result[2] / sum
+
+def plotLoss(train_loss, predict_loss, path):
+    x = range(len(train_loss))
+    plt.plot(x, train_loss)
+    plt.plot(x, predict_loss)
+    plt.savefig(path)

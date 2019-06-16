@@ -47,6 +47,7 @@ class Reader(data.Dataset):
                 continue
             abandon.close()
             self.time = time[1:]
+            print("Load Over! Valid file number is", len(all_prices), "Abandon file number is", len(abandon_file))
             return time[1:], all_prices, abandon_file
         print("Get data from Tick and HandleTick")
         self.tickfiles = os.listdir(self.tick_path)
@@ -90,6 +91,7 @@ class Reader(data.Dataset):
             # plotByTime(time[1:], prices[1:])
         abandon.close()
         self.time = time[1:]
+        print("Load Over! Valid file number is", len(all_prices), "Abandon file number is", len(abandon_file))
         return time[1:], all_prices, abandon_file
 
     def calPrice(self, turover1, turover2, volume1, volume2, priceB, priceA):
