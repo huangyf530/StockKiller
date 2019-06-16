@@ -174,7 +174,7 @@ if args['load_model']:
      if isGPU:
         model.load_state_dict(torch.load(args['save_path'] + args['load_path'],
                                          map_location=args['gpu']))
-    else:
+     else:
         model.load_state_dict(torch.load(args['save_path'] + args['load_path'],
                                          map_location=device))
     
