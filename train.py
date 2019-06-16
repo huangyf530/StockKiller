@@ -183,9 +183,8 @@ if not os.path.exists(args['save_path']):
     os.makedirs(args['save_path'])
         
 optimizer = torch.optim.Adam(model.parameters(), lr=args['learning_rate'])
-#loss_func = nn.CrossEntropyLoss()
 loss_func = nn.MSELoss()
-scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=args['lr_decay_factor'], patience=3)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
 for ep in range(args['epoch']):
     st = time.time()
@@ -204,10 +203,11 @@ for ep in range(args['epoch']):
     # valid
     model.eval()
     loss = train(valid_data, valid_labels, False)
+    scheduler.step()
     pacc = predict(valid_price)
     print('         validation_set, loss [%.4f] label acc [%.4f]'
           % (loss, pacc))
-
+    
     # test
     loss = train(test_data, test_labels, False)
     pacc = predict(test_price)
