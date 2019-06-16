@@ -92,7 +92,7 @@ def train(data, label, isTrain=True):
         total_acc += (batch_label == output.detach()).sum().float()
         
         if step % args['step_size'] == 0:
-            print('Step [%d] loss [%.4f]')
+            print('Step [%d] loss [%.4f]' % (step, total_loss))
         
         st, ed = ed, min(ed + args['batch_size'], len(data))
 
