@@ -46,7 +46,7 @@ $P_{dt}(t) = k \times \frac{iAccTurover(t) - iAccTurover(t - dt)}{iAccVolume(t) 
 
 本次大作业中，本组采用**单向双层LSTM**模型+**1层全连接层**来预测价格
 
-
+![model](./Resource/model.png)
 
 
 
