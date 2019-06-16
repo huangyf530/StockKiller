@@ -182,7 +182,7 @@ def newpredict(data):
     while st < len(data):
         for i in range(pl, ml - b_index):
             temp_data = [data[se][i - pl: i] for se in range(st, ed)]
-            for f in range(i, i + b_index + 1):
+            for f in range(pl, pl + b_index + 1):
                 batch_data = [temp_data[t][f - pl: f] for t in range(st, ed)]
                 batch_data = torch.FloatTensor(np.array(batch_data, np.float32))
                 batch_data = batch_data.to(device)
@@ -219,7 +219,7 @@ def newpredict(data):
     cmplabels = [list() for _ in range(len(labels))]
     elen = len(predict_labels[0])
     for i in range(len(labels)):
-        cmplabels[i] = labels[pl: pl + elen]
+        cmplabels[i] = labels[i][pl: pl + elen]
 
     assert(len(cmplabels) == len(predict_labels))
     total_num = 0
