@@ -45,8 +45,6 @@ class Reader(data.Dataset):
                 df['nTime'] = pd.to_datetime(df.nTime,format='%Y-%m-%d %H:%M:%S')
                 all_prices.append(df['Data'].tolist())
                 continue
-            if filename in abandon_file:
-                continue
             abandon.close()
             self.time = time[1:]
             return time[1:], all_prices, abandon_file
