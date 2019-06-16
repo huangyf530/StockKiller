@@ -223,18 +223,17 @@ class Reader(data.Dataset):
         return result, time
 
 if __name__=="__main__":
-    args = dict()
-    args['a'] = 30
-    args['b'] = 300
-    args['dt'] = 5
-    args['k'] = 0.3
-    args['theta'] = 0.004
-    reader = Reader(DATASET, args)
-    reader.read_tick()
-    tickfiles = os.listdir(reader.tick_path)
-    tickfiles = sorted(tickfiles)
-    filename = tickfiles[0]
-    df = pd.read_csv(reader.tick_path + os.sep + filename)
-    df['nTime'] = pd.to_datetime(df.nTime,format='%H%M%S%f')
-    df['nPrice'] = df['nPrice'] / 10000    # change its unit
-    plotByTime(df['nTime'].tolist(), df['nPrice'].tolist())
+    # args = dict()
+    # args['a'] = 30
+    # args['b'] = 300
+    # args['dt'] = 5
+    # args['k'] = 0.3
+    # args['theta'] = 0.004
+    # reader = Reader(DATASET, args)
+    # reader.read_tick()
+    y1 = np.random.randn(10)
+    y2 = np.random.randn(10)
+    y3 = np.random.randn(10)
+    y4 = np.random.randn(10)
+    plotPredictAndPrice(y1, y2, 2, "./figure1.png")
+    plotPredictAndPrice(y3, y4, 2, "./figure2.png")

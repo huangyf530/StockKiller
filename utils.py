@@ -55,6 +55,7 @@ def plotPredictAndPrice(data, predict, pl, path):
     plt.plot(x1, data)
     plt.plot(x2, predict[pl:])
     plt.savefig(path)
+    plt.close()
 
 def getThreeRate(data, reader, theta):
     '''
@@ -78,3 +79,4 @@ def plotLoss(train_loss, predict_loss, path):
     plt.plot(x, train_loss)
     plt.plot(x, predict_loss)
     plt.savefig(path)
+    plt.close()
