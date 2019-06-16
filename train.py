@@ -13,19 +13,11 @@ isGPU = False
 
 # parameters
 args = dict()
-<<<<<<< HEAD
-args['predict_len'] = 120 # 5min
-args['epoch'] = 100
-args['learning_rate'] = 0.0001
-args['batch_size'] = 2000
-args['lr_decay_factor'] = 0.99
-=======
 args['predict_len'] = 120 # 10min
 args['epoch'] = 100
 args['learning_rate'] = 0.0001
 args['batch_size'] = 2000
 args['lr_decay_factor'] = 0.9
->>>>>>> 8ef447dc958de9c40f83f7ba16626f0aa1133fc1
 args['input_dim'] = 1
 args['hidden_size'] = 100
 args['num_layers'] = 2
