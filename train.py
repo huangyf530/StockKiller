@@ -146,13 +146,10 @@ def predict(data):
     for i in range(len(labels)):
         for j in range(len(labels[i])):
             total_num += 1
-
-            total_acc_rate += acc_rate
-            total_call_rate += call_rate
             if labels[i][j] == predict_labels[i][j]:
                 acc_num += 1
 
-    acc_rate, call_rate = calPandR(predict_labels[i], labels[i])            
+    acc_rate, call_rate = calPandR(predict_labels, labels)   
     return float(acc_num) / float(total_num), acc_rate, call_rate
 
 
