@@ -15,10 +15,10 @@ args = dict()
 args['predict_len'] = 60 # 5min
 args['epoch'] = 100
 args['learning_rate'] = 0.1
-args['batch_size'] = 50
+args['batch_size'] = 100
 args['lr_decay_factor'] = 0.99
 args['input_dim'] = 1
-args['hidden_size'] = 200
+args['hidden_size'] = 50
 args['num_layers'] = 2
 args['a'] = 30
 args['b'] = 300
@@ -29,7 +29,7 @@ args['save_path'] = './models/'
 args['load_path'] = 'model0.pt'
 args['step_size'] = 1000
 args['load_model'] = False
-args['gpu'] = 'cuda:0'
+args['gpu'] = 'cuda:3'
 
 
 # func
