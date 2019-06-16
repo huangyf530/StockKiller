@@ -48,4 +48,11 @@ def calPandR(predict, label):
     up_call = float(correct_up_num) / float(up_total_num)
     down_call = float(correct_down_num) / float(down_total_num)
     return (up_accu + down_accu) / 2, (up_call + down_call) / 2
+
+def plotPredictAndPrice(data, predict, pl, path):
+    x1 = range(len(data))
+    x2 = range(pl, len(data))
+    plt.plot(x1, data)
+    plt.plot(s2, predict[pl:])
+    plt.savefig(path)
              

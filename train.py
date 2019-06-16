@@ -32,7 +32,7 @@ args['step_size'] = 1000
 args['load_model'] = False
 args['gpu'] = 'cuda:3'
 args['isTrain'] = True
-args['isPlot'] = True
+args['imagepath'] = "./Image"
 
 
 # func
@@ -132,7 +132,9 @@ def predict(data):
 
         st, ed = ed, min(ed + args['batch_size'], len(predict_data))
 
-
+    if args['imagepath'] is not None and not args['isTrain']:
+        for i in range(len(data)):
+            plotPredictAndPrice(data[i],  predict_data[i], pl, os.path.join(args['imagepath'], "figure" +  str(i)))
     predict_labels = list()
     for i in range(len(predict_data)):
         l, _ = reader.calUpAndDown(predict_data[i], theta)
