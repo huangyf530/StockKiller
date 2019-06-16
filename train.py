@@ -66,7 +66,7 @@ def train(data, label, isTrain=True):
     global optimizer
 
     st, ed = 0, min(args['batch_size'], len(data))
-    total_loss, total_acc = 0., 0.
+    total_loss = 0.
     step = 0
     
     while st < len(data):
@@ -89,14 +89,13 @@ def train(data, label, isTrain=True):
             optimizer.step()
 
         total_loss += float(loss)
-        total_acc += (batch_label == output.detach()).sum().float()
         
         if step % args['step_size'] == 0:
             print('Step [%d] loss [%.4f]' % (step, float(loss)))
         
         st, ed = ed, min(ed + args['batch_size'], len(data))
 
-    return total_loss, total_acc / len(data)
+    return total_loss / step
 
 
 def predict(data):
@@ -195,22 +194,22 @@ for ep in range(args['epoch']):
 
     # train
     model.train()
-    loss, acc = train(data, label)
+    loss = train(data, label)
     #pacc = predict(train_price)
-    print('Epoch %d: learning rate %.8f epoch time %.4fs loss [%.4f] price acc [%.4f]'
-          % (ep, get_lr(optimizer), time.time()-st, loss, acc))
+    print('Epoch %d: learning rate %.8f epoch time %.4fs mean loss [%.4f]'
+          % (ep, get_lr(optimizer), time.time()-st, loss))
 
     torch.save(model.state_dict(), args['save_path'] + 'model' + str(ep) + '.pt')
 
     # valid
     model.eval()
-    loss, acc = train(valid_data, valid_labels, False)
+    loss = train(valid_data, valid_labels, False)
     pacc = predict(valid_price)
-    print('         validation_set, loss [%.4f] price acc [%.4f] label acc [%.4f]'
-          % (loss, acc, pacc))
+    print('         validation_set, loss [%.4f] label acc [%.4f]'
+          % (loss, pacc))
 
     # test
-    loss, acc = train(test_data, test_labels, False)
+    loss = train(test_data, test_labels, False)
     pacc = predict(test_price)
-    print('         test_set, loss [%.4f] price acc [%.4f] label acc [%.4f]'
-          % (loss, acc, pacc))
+    print('         test_set, loss [%.4f] label acc [%.4f]'
+          % (loss, pacc))
