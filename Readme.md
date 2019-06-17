@@ -7,3 +7,4 @@ Created by Yufei Huang and Kim Jin
 + Volume：成交量
 + Bid Price：买家出的价
 + Ask Price：卖家出的价
+
