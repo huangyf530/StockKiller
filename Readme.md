@@ -1,6 +1,6 @@
 # Big homework for Parttern Recognition
 
-Created by Yufei Huang and Zaiyuan Kim
+Created by Yufei Huang and Jaewon Kim
 
 ## 股市术语
 + Turover：成交额
@@ -8,7 +8,6 @@ Created by Yufei Huang and Zaiyuan Kim
 + Bid Price：买家出的价
 + Ask Price：卖家出的价
 
-<<<<<<< HEAD
 =======
 ## 环境配置
 
@@ -59,4 +58,3 @@ python3 train.py
 
 > 注：如果采用GPU，注意需要GPU内存至少2G
 
->>>>>>> 332ee0463e1f1b98a650ed378bc4428204c5935c
