@@ -8,7 +8,7 @@ Created by Yufei Huang and Jaewon Kim
 + Bid Price：买家出的价
 + Ask Price：卖家出的价
 
-=======
+
 ## 环境配置
 
 + Python3
