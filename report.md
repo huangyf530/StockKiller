@@ -58,6 +58,12 @@ $P_{dt}(t) = k \times \frac{iAccTurover(t) - iAccTurover(t - dt)}{iAccVolume(t) 
 
 将总数据集划分成**训练集**，**验证集**，**测试集**。比例为：$$0.8:0.1:0.1$$
 
+|              | 下跌   | 不变   | 上涨   |
+| ------------ | ------ | ------ | ------ |
+| Training set | 28.14% | 45.03% | 28.82% |
+| Valid set    | 28.10% | 44.47% | 27.43% |
+| Test set     | 28.99% | 43.41% | 27.59% |
+
 
 
 ### 3.2 训练
@@ -92,7 +98,49 @@ $P_{dt}(t) = k \times \frac{iAccTurover(t) - iAccTurover(t - dt)}{iAccVolume(t) 
 
 ## 4 实验结果
 
+### 4.1 对比实验
 
+以参数：
+
+* `predict length`
+* `hidden size`
+* `learning rate`
+
+进行如下对比实验
+
+| Best Epoch | learning rate | predict len | hidden dim | label accuracy | Precision | Recall |
+| ---------- | ------------- | ----------- | ---------- | -------------- | --------- | ------ |
+| 9          | 0.0001        | 60          | 50         | 28.23%         | 28.10%    | 49.05% |
+| 4          | 0.0001        | 60          | 100        | 28.53%         | 29.28%    | 49.70% |
+| 6          | 0.0005        | 120         | 50         | 27.54%         | 37.96%    | 50.03% |
+| 18         | 0.0001        | 180         | 50         | 28.30%         | 30.27%    | 50.01% |
+
+### 4.2 训练与测试
+
+参数：
+
+* `predict length`=180
+* `init learning rate`=0.0001
+* `hidden size`=50
+
+![loss](/Users/kim/Coding/Pattern_Recognition/StockKiller/Resource/loss.png)
+
+### 4.3 预测结果可视化
+
+#### 4.3.1 成功的例子
+
+![best_pl180_hd50](/Users/kim/Coding/Pattern_Recognition/StockKiller/Resource/best_pl180_hd50.png)
+
+* 预测轨迹与真实价格轨迹基本吻合
+* 部分位置处略微低于原始曲线
+
+#### 4.3.2 失败的例子
+
+![not_so_good](/Users/kim/Coding/Pattern_Recognition/StockKiller/Resource/not_so_good.png)
+
+* 只学习到价格的趋势
+* 所有的预测价格低于真实价格
+* 部分性地说明了精确率比较低的原因
 
 
 
