@@ -34,6 +34,7 @@ args['load_model'] = True
 args['gpu'] = 'cuda:3'
 args['isTrain'] = False
 args['imagepath'] = "./Image_" + 'pl'+str(args['predict_len'])+'_lr'+str(args['learning_rate'])+'_hd'+str(args['hidden_size'])
+args['path'] = './PRdata'
 
 
 # func
@@ -236,8 +237,7 @@ def newpredict(data):
     return float(acc_num) / float(total_num), acc_rate, call_rate
             
 # init data
-path = './PRdata'
-reader = Reader(path, args)
+reader = Reader(args['path'], args)
 stock_time, all_price, _  = reader.read_tick()
 tv_price, test_price, _, _ = train_test_split(all_price, [i for i in range(len(all_price))], test_size=0.1, random_state=42)
 train_price, valid_price, _, _ = train_test_split(tv_price, [i for i in range(len(tv_price))], test_size=0.1, random_state=42)
